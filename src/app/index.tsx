@@ -109,8 +109,9 @@ export default function Index() {
     }
   }))
 
-  function handleReverse() {
-    setFromCurrency
+  function handleSwap() {
+    setFromCurrency(inCurrency)
+    setInCurrency(fromCurrency)
   }
 
   return (
@@ -134,6 +135,7 @@ export default function Index() {
       </View>
 
       <Pressable
+      onPress={handleSwap}
         style={({ pressed }) => [styles.swapButton, pressed && styles.swapButtonPressed]}
       >
         <Image
