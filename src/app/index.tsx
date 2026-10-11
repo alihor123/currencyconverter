@@ -1,21 +1,9 @@
-import { StyleSheet, Text, View } from 'react-native'
-
-import { Colors } from '@/constants/colors'
-import { useThemeColors } from '@/hooks/useThemeColors'
+import { useStyles } from '@/hooks/useStyles'
+import { Text, View } from 'react-native'
 
 export default function Index() {
-  const colors = useThemeColors()
-  const styles = getStyles(colors)
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Конвертер валют</Text>
-    </View>
-  )
-}
-
-function getStyles(colors: typeof Colors.light) {
-  return StyleSheet.create({
+  const styles = useStyles((colors) => ({
     container: {
       flex: 1,
       backgroundColor: colors.background,
@@ -30,5 +18,12 @@ function getStyles(colors: typeof Colors.light) {
       color: colors.operationBackground,
       textAlign: 'center',
     },
-  })
+  }))
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Конвертер валют</Text>
+    </View>
+  )
 }
+
