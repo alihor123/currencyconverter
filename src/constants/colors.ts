@@ -1,39 +1,41 @@
 export const Colors = {
   light: {
-    background: '#F5FAFF',
-    textSmall: '#64839C',
-    text: '#183B56',
+    background: '#FFFFFF',
+    textSecondary: '#8A96AA',
+    text: '#1E293B',
+    border: '#E8EDF4',
     error: '#D70015',
 
-    button: '#FFFFFF',
-    buttonText: '#183B56',
-    buttonPressed: '#E2F1FB',
+    surface: '#FFFFFF',
+    onSurface: '#1E293B',
+    surfacePressed: '#F1F5FA',
 
-    functionalButton: '#DFF1FE',
-    functionalText: '#237EB5',
-    functionalPressed: '#C7E8FC',
+    surfaceSoft: '#EEF4FF',
+    onSurfaceSoft: '#1769E8',
+    surfaceSoftPressed: '#DDEAFF',
 
-    operationBackground: '#38A9F0',
-    operationText: '#FFFFFF',
-    operationPressed: '#218FD3',
+    primary: '#1677FF',
+    onPrimary: '#FFFFFF',
+    primaryPressed: '#0864E8'
   },
 
   dark: {
-    background: '#102536',
-    textSmall: '#9DBDD3',
-    text: '#FFFFFF',
+    background: '#101722',
+    textSecondary: '#94A3B8',
+    text: '#F1F5F9',
+    border: '#2B3749',
     error: '#FF453A',
 
-    button: '#193A50',
-    buttonText: '#FFFFFF',
-    buttonPressed: '#285671',
+    surface: '#182231',
+    onSurface: '#F1F5F9',
+    surfacePressed: '#223045',
 
-    functionalButton: '#234C67',
-    functionalText: '#DFF1FE',
-    functionalPressed: '#326B8C',
+    surfaceSoft: '#192E4D',
+    onSurfaceSoft: '#80B4FF',
+    surfaceSoftPressed: '#223E65',
 
-    operationBackground: '#57BBF6',
-    operationText: '#102536',
-    operationPressed: '#38A9F0',
-  },
+    primary: '#1677FF',
+    onPrimary: '#FFFFFF',
+    primaryPressed: '#0864E8'
+  }
 }

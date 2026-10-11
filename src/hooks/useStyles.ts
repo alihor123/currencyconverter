@@ -6,6 +6,6 @@ function getThemeColors() {
   return theme === 'dark' ? Colors.dark : Colors.light
 }
 
-export function useStyles<T extends StyleSheet.NamedStyles<T>>(createStyles: (colors: typeof Colors.light) => T) {
+export function useStyles<T extends StyleSheet.NamedStyles<any>>(createStyles: (colors: typeof Colors.light) => T) {
   return StyleSheet.create(createStyles(getThemeColors()))
 }
