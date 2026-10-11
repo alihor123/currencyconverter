@@ -1,14 +1,9 @@
 import { ArrowDown } from '@/assets/icons'
 import { useStyles } from '@/hooks/useStyles'
+import type { Currency } from '@/services/currency.api'
 import { Image } from 'expo-image'
 import { Text, View } from 'react-native'
 import { Dropdown } from 'react-native-element-dropdown'
-
-type Currency = {
-  code: string
-  name: string
-  description: string
-}
 
 type SelectorProps = {
   currencies: Currency[]

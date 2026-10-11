@@ -254,9 +254,9 @@ export class Api {
   }
 
   // Фильтрация ошибок. При DTO ошибке сообщение по умолчанию
-  static throwResponseError(error: unknown): never {
-    if (error instanceof ZodError) {
-      throw new ApiError(Api.getErrorMessage('response'))
+  static throwResponseError(error: unknown, errors: Errors = {}, errorsReplace: boolean = false): never {
+    if (error instanceof ZodError || error instanceof SyntaxError) {
+      throw new ApiError(Api.getErrorMessage('response', errors, errorsReplace))
     }
 
     throw error

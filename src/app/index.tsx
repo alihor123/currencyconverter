@@ -1,32 +1,57 @@
 ﻿import { ArrowDownUp } from '@/assets/icons'
 import { Selector } from '@/components/Selector'
 import { useStyles } from '@/hooks/useStyles'
+import { ApiError } from '@/services/api'
+import { getCurrencies, type Currency } from '@/services/currency.api'
 import { Image } from 'expo-image'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native'
 
-const currencies = [
-  { code: 'USD', name: 'USD', description: 'Доллар США' },
-  { code: 'EUR', name: 'EUR', description: 'Евро' },
-  { code: 'RUB', name: 'RUB', description: 'Российский рубль' }
-]
-
 export default function Index() {
-  const [fromCurrency, setFromCurrency] = useState(currencies[0])
-  const [inCurrency, setInCurrency] = useState(currencies[0])
-  const [isLoading, setIsLoading] = useState(true)
+  const [currencies, setCurrencies] = useState<Currency[]>([])
+  const [fromCurrency, setFromCurrency] = useState<Currency | null>(null)
+  const [inCurrency, setInCurrency] = useState<Currency | null>(null)
+  const [isDataLoading, setIsDataLoading] = useState(true)
+  const [dataLoadError, setDataLoadError] = useState<string | null>(null)
 
   const styles = useStyles((colors) => ({
     container: {
       flex: 1,
       backgroundColor: colors.background
     },
-    loading: {
+    DataLoader: {
+      flex: 1,
+      backgroundColor: colors.background,
       alignItems: 'center',
       justifyContent: 'center'
     },
-    loadingIndicator: {
+    dataLoaderIndicator: {
       color: colors.primary
+    },
+    dataError: {
+      backgroundColor: colors.background,
+      alignSelf: 'center',
+      alignItems: 'center',
+      maxWidth: '90%',
+      marginVertical: 'auto',
+      justifyContent: 'center',
+      padding: 24
+    },
+    dataErrorText: {
+      color: colors.error,
+      fontSize: 16,
+      textAlign: 'center',
+      marginBottom: 20
+    },
+    dataErrorButton: {
+      alignSelf: 'stretch',
+      height: 50,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 16,
+      backgroundColor: colors.primary
     },
 
     content: {
@@ -73,7 +98,7 @@ export default function Index() {
       justifyContent: 'center'
       
     },
-    swapButtonPressed: {
+    buttonPressed: {
       opacity: 0.6
     },
     swapIcon: {
@@ -117,6 +142,34 @@ export default function Index() {
     }
   }))
 
+  // Загрузка валют
+  async function loadData() {
+    setIsDataLoading(true)
+    setDataLoadError(null)
+
+    try {
+      const data = await getCurrencies()
+
+      const fromCurrencies = data.find(currencies => currencies.code.toLowerCase() === 'usd') || data[0]
+      const inCurrency = data.find(currencies => currencies.code.toLowerCase() === 'rub') || data[0]
+      setCurrencies(data)
+      setFromCurrency(fromCurrencies)
+      setInCurrency(inCurrency)
+    }
+    catch (error) {
+      if (error instanceof ApiError) {
+        setDataLoadError(error.message)
+      }
+    }
+    finally {
+      setIsDataLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadData()
+  }, [])
+
   function handleSwap() {
     setFromCurrency(inCurrency)
     setInCurrency(fromCurrency)
@@ -124,10 +177,26 @@ export default function Index() {
 
   
 
-  if (isLoading) {
+  if (isDataLoading) {
     return (
-      <View style={[styles.container, styles.loading]}>
-        <ActivityIndicator size={80} color={styles.loadingIndicator.color} />
+      <View style={styles.DataLoader}>
+        <ActivityIndicator size={80} color={styles.dataLoaderIndicator.color} />
+      </View>
+    )
+  }
+
+  if (dataLoadError) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.dataError}>
+          <Text style={styles.dataErrorText}>{dataLoadError}</Text>
+          <Pressable
+            onPress={loadData}
+            style={({ pressed }) => ([styles.dataErrorButton, pressed && styles.buttonPressed ])}
+          >
+            <Text style={styles.convertButtonText}>Повторить</Text>
+          </Pressable>
+        </View>
       </View>
     )
   }
@@ -147,14 +216,14 @@ export default function Index() {
         <Text style={styles.label}>Из</Text>
         <Selector
           currencies={currencies}
-          value={fromCurrency}
+          value={fromCurrency!}
           onChange={setFromCurrency}
         />
       </View>
 
       <Pressable
         onPress={handleSwap}
-        style={({ pressed }) => [styles.swapButton, pressed && styles.swapButtonPressed]}
+        style={({ pressed }) => [styles.swapButton, pressed && styles.buttonPressed]}
       >
         <Image
           source={ArrowDownUp}
@@ -168,7 +237,7 @@ export default function Index() {
         <Text style={styles.label}>В</Text>
         <Selector
           currencies={currencies}
-          value={inCurrency}
+          value={inCurrency!}
           onChange={setInCurrency}
         />
       </View>
