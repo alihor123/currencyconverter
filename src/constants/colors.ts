@@ -1,39 +1,39 @@
 export const Colors = {
   light: {
-    background: '#F5F5F7',
-    textSmall: '#86868B',
-    text: '#1D1D1F',
+    background: '#F5FAFF',
+    textSmall: '#64839C',
+    text: '#183B56',
     error: '#D70015',
 
-    button: '#E5E5EA',
-    buttonText: '#1D1D1F',
-    buttonPressed: '#D1D1D6',
+    button: '#FFFFFF',
+    buttonText: '#183B56',
+    buttonPressed: '#E2F1FB',
 
-    functionalButton: '#D1D1D6',
-    functionalText: '#1D1D1F',
-    functionalPressed: '#B8B8BE',
+    functionalButton: '#DFF1FE',
+    functionalText: '#237EB5',
+    functionalPressed: '#C7E8FC',
 
-    operationBackground: '#FF9500',
+    operationBackground: '#38A9F0',
     operationText: '#FFFFFF',
-    operationPressed: '#E68600',
+    operationPressed: '#218FD3',
   },
 
   dark: {
-    background: '#000000',
-    textSmall: '#A1A1A6',
+    background: '#102536',
+    textSmall: '#9DBDD3',
     text: '#FFFFFF',
     error: '#FF453A',
 
-    button: '#333333',
+    button: '#193A50',
     buttonText: '#FFFFFF',
-    buttonPressed: '#737373',
+    buttonPressed: '#285671',
 
-    functionalButton: '#A5A5A5',
-    functionalText: '#000000',
-    functionalPressed: '#D9D9D9',
+    functionalButton: '#234C67',
+    functionalText: '#DFF1FE',
+    functionalPressed: '#326B8C',
 
-    operationBackground: '#FF9F0A',
-    operationText: '#FFFFFF',
-    operationPressed: '#FFBF66',
+    operationBackground: '#57BBF6',
+    operationText: '#102536',
+    operationPressed: '#38A9F0',
   },
 }

@@ -12,7 +12,7 @@ if not exist "android\gradlew.bat" (
   if errorlevel 1 exit /b 1
 )
 
-call android\gradlew.bat -p android :app:assembleRelease "-Dorg.gradle.jvmargs=-Xmx2048m -XX:MaxMetaspaceSize=1024m" -Dorg.gradle.internal.http.connectionTimeout=120000 -Dorg.gradle.internal.http.socketTimeout=120000
+call android\gradlew.bat -p android :app:assembleRelease -PreactNativeArchitectures=arm64-v8a -Pexpo.useLegacyPackaging=true "-Dorg.gradle.jvmargs=-Xmx2048m -XX:MaxMetaspaceSize=1024m" -Dorg.gradle.internal.http.connectionTimeout=120000 -Dorg.gradle.internal.http.socketTimeout=120000
 if errorlevel 1 exit /b 1
 
 echo APK: android\app\build\outputs\apk\release\app-release.apk
