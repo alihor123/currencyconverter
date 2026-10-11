@@ -3,7 +3,7 @@ import { Selector } from '@/components/Selector'
 import { useStyles } from '@/hooks/useStyles'
 import { Image } from 'expo-image'
 import { useState } from 'react'
-import { Pressable, ScrollView, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native'
 
 const currencies = [
   { code: 'USD', name: 'USD', description: 'Доллар США' },
@@ -14,11 +14,19 @@ const currencies = [
 export default function Index() {
   const [fromCurrency, setFromCurrency] = useState(currencies[0])
   const [inCurrency, setInCurrency] = useState(currencies[0])
+  const [isLoading, setIsLoading] = useState(true)
 
   const styles = useStyles((colors) => ({
     container: {
       flex: 1,
       backgroundColor: colors.background
+    },
+    loading: {
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    loadingIndicator: {
+      color: colors.primary
     },
 
     content: {
@@ -114,6 +122,16 @@ export default function Index() {
     setInCurrency(fromCurrency)
   }
 
+  
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, styles.loading]}>
+        <ActivityIndicator size={80} color={styles.loadingIndicator.color} />
+      </View>
+    )
+  }
+
   return (
     <ScrollView
       style={styles.container}
@@ -135,7 +153,7 @@ export default function Index() {
       </View>
 
       <Pressable
-      onPress={handleSwap}
+        onPress={handleSwap}
         style={({ pressed }) => [styles.swapButton, pressed && styles.swapButtonPressed]}
       >
         <Image
