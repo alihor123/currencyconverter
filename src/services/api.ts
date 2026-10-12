@@ -1,4 +1,5 @@
 import { wait } from '@/helpers/wait'
+import { FetchError } from 'expo/src/winter/fetch/FetchErrors'
 import { ZodError, type ZodType } from 'zod'
 
 type ErrorCode =
@@ -133,7 +134,7 @@ export class Api {
       }
       catch (error) {
         const isTimeout = controller.signal.aborted
-        const isNetwork = error instanceof TypeError
+        const isNetwork = error instanceof TypeError || error instanceof FetchError
         const isServerError = error instanceof ApiError && Number(error.status) >= 500
 
         // Повторяем при ошибке сети, таймауте или 5xx

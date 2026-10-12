@@ -77,6 +77,7 @@ export function Selector({ currencies, value, disabled, onChange }: SelectorProp
       activeColor={styles.selectedItem.backgroundColor}
       selectedTextStyle={styles.hiddenText}
       maxHeight={260}
+      autoScroll={false}
 
       renderLeftIcon={() => (
         <View style={styles.selectedContent}>

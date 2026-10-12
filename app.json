@@ -15,7 +15,8 @@
         "backgroundColor": "#1677FF",
         "foregroundImage": "./assets/images/currency-icon.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.currencyconverter"
     },
     "web": {
       "output": "static",
