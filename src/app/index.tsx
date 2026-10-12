@@ -1,5 +1,6 @@
 ﻿import { ArrowDownUp } from '@/assets/icons'
 import { Selector } from '@/components/Selector'
+import { useDelayedLoading } from '@/hooks/useDelayedLoading'
 import { useStyles } from '@/hooks/useStyles'
 import { ApiError } from '@/services/api'
 import { getCurrencies, getExchangeRate, type Currency, type ExchangeRate } from '@/services/currency.api'
@@ -160,6 +161,7 @@ export default function Index() {
   const [dataLoadError, setDataLoadError] = useState<string | null>(null)
   const [amount, setAmount] = useState('1')
   const [isConvertLoading, setIsConvertLoading] = useState(false)
+  const [showConvertLoading, onConvertLoadingChange] = useDelayedLoading(300, false)
   const [convertError, setConvertError] = useState<string | null>(null)
   const [result, setResult] = useState<ConversionResult | null>(null)
 
@@ -172,13 +174,13 @@ export default function Index() {
   // Поле для результата, загрузки и обработки ошибок
   let resultMessage: string | null = null
 
-  if (isConvertLoading) {
+  if (showConvertLoading) {
     resultMessage = 'Загрузка'
   } else if (disabled) {
     resultMessage = 'Введите сумму'
   } else if (convertError) {
     resultMessage = convertError
-  } else if (!result) {
+  } else if (!result && !isConvertLoading) {
     resultMessage = 'Введите сумму'
   }
 
@@ -212,8 +214,8 @@ export default function Index() {
     if (disabled || isConvertLoading) return
 
     setIsConvertLoading(true)
+    onConvertLoadingChange(true)
     setConvertError(null)
-    setResult(null)
 
     try {
       const numericAmount = Number(amount.replace(',', '.'))
@@ -225,10 +227,12 @@ export default function Index() {
     catch (error) {
       if (error instanceof ApiError) {
         setConvertError(error.message)
+        setResult(null)
       }
     }
     finally {
       setIsConvertLoading(false)
+      onConvertLoadingChange(false)
     }
   }
 
@@ -343,7 +347,7 @@ export default function Index() {
       <Pressable
         onPress={handleSwap}
         disabled={isConvertLoading}
-        style={({ pressed }) => [styles.swapButton, pressed && styles.buttonPressed, isConvertLoading && styles.buttonDisabled]}
+        style={({ pressed }) => [styles.swapButton, pressed && styles.buttonPressed, showConvertLoading && styles.buttonDisabled]}
       >
         <Image
           source={ArrowDownUp}
@@ -364,7 +368,7 @@ export default function Index() {
       <Pressable
         onPress={() => handleConvert()}
         disabled={disabled || isConvertLoading}
-        style={({ pressed }) => [styles.convertButton, pressed && styles.convertButtonPressed, (disabled || isConvertLoading) && styles.buttonDisabled]}
+        style={({ pressed }) => [styles.convertButton, pressed && styles.convertButtonPressed, (disabled || showConvertLoading) && styles.buttonDisabled]}
       >
         <Text style={styles.convertButtonText}>Конвертировать</Text>
       </Pressable>
