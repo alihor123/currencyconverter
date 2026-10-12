@@ -2,19 +2,19 @@
 import { Selector } from '@/components/Selector'
 import { useStyles } from '@/hooks/useStyles'
 import { ApiError } from '@/services/api'
-import { getCurrencies, type Currency } from '@/services/currency.api'
+import { getCurrencies, getExchangeRate, type Currency, type ExchangeRate } from '@/services/currency.api'
 import { Image } from 'expo-image'
 import { useEffect, useState } from 'react'
 import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native'
 
-export default function Index() {
-  const [currencies, setCurrencies] = useState<Currency[]>([])
-  const [fromCurrency, setFromCurrency] = useState<Currency | null>(null)
-  const [inCurrency, setInCurrency] = useState<Currency | null>(null)
-  const [isDataLoading, setIsDataLoading] = useState(true)
-  const [dataLoadError, setDataLoadError] = useState<string | null>(null)
-  const [amount, setAmount] = useState('1')
+type ConversionResult = {
+  amount: number
+  value: number
+  currency: Currency
+  exchangeRate: ExchangeRate
+}
 
+export default function Index() {
   const styles = useStyles((colors) => ({
     container: {
       flex: 1,
@@ -102,6 +102,9 @@ export default function Index() {
     buttonPressed: {
       opacity: 0.6
     },
+    buttonDisabled: {
+      opacity: 0.5
+    },
     swapIcon: {
       width: 30,
       height: 30,
@@ -127,6 +130,8 @@ export default function Index() {
     },
     result: {
       width: '100%',
+      minHeight: 100,
+      justifyContent: 'center',
       gap: 8,
       padding: 16,
       borderRadius: 16,
@@ -140,8 +145,42 @@ export default function Index() {
     resultHint: {
       fontSize: 12,
       color: colors.textSecondary
+    },
+    resultMessage: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      textAlign: 'center'
     }
   }))
+
+  const [currencies, setCurrencies] = useState<Currency[]>([])
+  const [fromCurrency, setFromCurrency] = useState<Currency | null>(null)
+  const [inCurrency, setInCurrency] = useState<Currency | null>(null)
+  const [isDataLoading, setIsDataLoading] = useState(true)
+  const [dataLoadError, setDataLoadError] = useState<string | null>(null)
+  const [amount, setAmount] = useState('1')
+  const [isConvertLoading, setIsConvertLoading] = useState(false)
+  const [convertError, setConvertError] = useState<string | null>(null)
+  const [result, setResult] = useState<ConversionResult | null>(null)
+
+  const disabled = !amount
+  const formattedResult = result?.value.toLocaleString('ru-RU', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })
+
+  // Поле для результата, загрузки и обработки ошибок
+  let resultMessage: string | null = null
+
+  if (isConvertLoading) {
+    resultMessage = 'Загрузка'
+  } else if (disabled) {
+    resultMessage = 'Введите сумму'
+  } else if (convertError) {
+    resultMessage = convertError
+  } else if (!result) {
+    resultMessage = 'Введите сумму'
+  }
 
   // Загрузка валют
   async function loadData() {
@@ -156,6 +195,7 @@ export default function Index() {
       setCurrencies(data)
       setFromCurrency(fromCurrencies)
       setInCurrency(inCurrency)
+      return { fromCurrency: fromCurrencies, inCurrency }
     }
     catch (error) {
       if (error instanceof ApiError) {
@@ -167,8 +207,42 @@ export default function Index() {
     }
   }
 
+  // Конвертация суммы по курсу выбранной пары
+  async function handleConvert(from = fromCurrency, to = inCurrency) {
+    if (disabled || isConvertLoading) return
+
+    setIsConvertLoading(true)
+    setConvertError(null)
+    setResult(null)
+
+    try {
+      const numericAmount = Number(amount.replace(',', '.'))
+      const exchangeRate = await getExchangeRate(from!, to!)
+      const value = numericAmount * exchangeRate.rate
+
+      setResult({ amount: numericAmount, value, currency: to!, exchangeRate })
+    }
+    catch (error) {
+      if (error instanceof ApiError) {
+        setConvertError(error.message)
+      }
+    }
+    finally {
+      setIsConvertLoading(false)
+    }
+  }
+
   useEffect(() => {
-    loadData()
+    // Загрузка валют + первая конвертация
+    async function init() {
+      const selectedCurrencies = await loadData()
+
+      if (selectedCurrencies) {
+        await handleConvert(selectedCurrencies.fromCurrency, selectedCurrencies.inCurrency)
+      }
+    }
+
+    init()
   }, [])
 
   // Ввод суммы с ограничением через регулярное выражение
@@ -178,9 +252,10 @@ export default function Index() {
     }
   }
 
-  function handleSwap() {
+  async function handleSwap() {
     setFromCurrency(inCurrency)
     setInCurrency(fromCurrency)
+    await handleConvert(inCurrency, fromCurrency)
   }
 
   
@@ -199,7 +274,13 @@ export default function Index() {
         <View style={styles.dataError}>
           <Text style={styles.dataErrorText}>{dataLoadError}</Text>
           <Pressable
-            onPress={loadData}
+            onPress={async () => {
+              const selectedCurrencies = await loadData()
+
+              if (selectedCurrencies) {
+                await handleConvert(selectedCurrencies.fromCurrency, selectedCurrencies.inCurrency)
+              }
+            }}
             style={({ pressed }) => ([styles.dataErrorButton, pressed && styles.buttonPressed ])}
           >
             <Text style={styles.convertButtonText}>Повторить</Text>
@@ -222,6 +303,7 @@ export default function Index() {
           value={amount}
           onChangeText={handleChange}
           keyboardType="decimal-pad"
+          editable={!isConvertLoading}
         />
       </View>
 
@@ -236,7 +318,8 @@ export default function Index() {
 
       <Pressable
         onPress={handleSwap}
-        style={({ pressed }) => [styles.swapButton, pressed && styles.buttonPressed]}
+        disabled={isConvertLoading}
+        style={({ pressed }) => [styles.swapButton, pressed && styles.buttonPressed, isConvertLoading && styles.buttonDisabled]}
       >
         <Image
           source={ArrowDownUp}
@@ -255,20 +338,35 @@ export default function Index() {
         />
       </View>
       <Pressable
-        style={({ pressed }) => [styles.convertButton, pressed && styles.convertButtonPressed]}
+        onPress={() => handleConvert()}
+        disabled={disabled || isConvertLoading}
+        style={({ pressed }) => [styles.convertButton, pressed && styles.convertButtonPressed, (disabled || isConvertLoading) && styles.buttonDisabled]}
       >
         <Text style={styles.convertButtonText}>Конвертировать</Text>
       </Pressable>
 
-      {/* Временный результат для верстки. */}
       <View style={styles.wrapper}>
         <Text style={styles.label}>Результат</Text>
         <View style={styles.result}>
-          <Text style={styles.resultValue}>10 800,00 ₽</Text>
-          <Text style={styles.resultHint}>100 USD = 10 800,00 RUB</Text>
+          {resultMessage && (
+            <Text style={styles.resultMessage}>{resultMessage}</Text>
+          )}
+
+          {!resultMessage && result && (
+            <>
+              <Text style={styles.resultValue}>{formattedResult} {result.currency.symbol ?? result.currency.code}</Text>
+              <Text style={styles.resultHint}>
+                {result.amount} {result.exchangeRate.base} = {formattedResult} {result.exchangeRate.quote}
+              </Text>
+            </>
+          )}
         </View>
       </View>
-      <Text style={styles.resultHint}>Курс обновлён: 12.10.2026, 12:00</Text>
+      {result && !disabled && result.exchangeRate.date && (
+        <Text style={styles.resultHint}>
+          Курс обновлён: {result.exchangeRate.date.split('-').reverse().join('.')}
+        </Text>
+      )}
     </ScrollView>
   )
 }
