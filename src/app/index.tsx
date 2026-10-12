@@ -241,7 +241,7 @@ export default function Index() {
   }
 
   useEffect(() => {
-    // Загрузка валют + первая конвертация
+    // Загрузка валют
     async function init() {
       const selectedCurrencies = await loadData()
 

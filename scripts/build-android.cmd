@@ -7,10 +7,8 @@ for /d %%J in ("%USERPROFILE%\.gradle\jdks\*17*") do set "JAVA_HOME=%%~fJ"
 if not defined ANDROID_HOME set "ANDROID_HOME=%LOCALAPPDATA%\Android\Sdk"
 set "NODE_ENV=production"
 
-if not exist "android\gradlew.bat" (
-  call npx expo prebuild --platform android
-  if errorlevel 1 exit /b 1
-)
+call npx expo prebuild --platform android
+if errorlevel 1 exit /b 1
 
 call android\gradlew.bat -p android :app:assembleRelease -PreactNativeArchitectures=arm64-v8a -Pexpo.useLegacyPackaging=true "-Dorg.gradle.jvmargs=-Xmx2048m -XX:MaxMetaspaceSize=1024m" -Dorg.gradle.internal.http.connectionTimeout=120000 -Dorg.gradle.internal.http.socketTimeout=120000
 if errorlevel 1 exit /b 1
