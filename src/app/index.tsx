@@ -252,10 +252,34 @@ export default function Index() {
     }
   }
 
+  // Смена валют местам
   async function handleSwap() {
+    if (isConvertLoading) return
+    if (disabled) return
+
     setFromCurrency(inCurrency)
     setInCurrency(fromCurrency)
-    await handleConvert(inCurrency, fromCurrency)
+
+    if (!result) {
+      await handleConvert(inCurrency, fromCurrency)
+      return
+    }
+
+    const numericAmount = Number(amount.replace(',', '.'))
+    const exchangeRate = {
+      ...result.exchangeRate,
+      base: result.exchangeRate.quote,
+      quote: result.exchangeRate.base,
+      rate: 1 / result.exchangeRate.rate
+    }
+
+    setConvertError(null)
+    setResult({
+      amount: numericAmount,
+      value: numericAmount * exchangeRate.rate,
+      currency: fromCurrency!,
+      exchangeRate: exchangeRate
+    })
   }
 
   
