@@ -197,7 +197,7 @@ export default function Index() {
       setCurrencies(data)
       setFromCurrency(fromCurrencies)
       setInCurrency(inCurrency)
-      return { fromCurrency: fromCurrencies, inCurrency }
+      await handleConvert(fromCurrencies, inCurrency)
     }
     catch (error) {
       if (error instanceof ApiError) {
@@ -241,16 +241,7 @@ export default function Index() {
   }
 
   useEffect(() => {
-    // Загрузка валют
-    async function init() {
-      const selectedCurrencies = await loadData()
-
-      if (selectedCurrencies) {
-        await handleConvert(selectedCurrencies.fromCurrency, selectedCurrencies.inCurrency)
-      }
-    }
-
-    init()
+    loadData()
   }, [])
 
   // Ввод суммы с ограничением через регулярное выражение
@@ -260,7 +251,7 @@ export default function Index() {
     }
   }
 
-  // Смена выбранной валюты + очистка старого результата
+  // Смена выбранной валюты 
   function handleCurrencyChange(changeCurrency: () => void) {
     setResult(null)
     setConvertError(null)
@@ -320,13 +311,7 @@ export default function Index() {
         <View style={styles.dataError}>
           <Text style={styles.dataErrorText}>{dataLoadError}</Text>
           <Pressable
-            onPress={async () => {
-              const selectedCurrencies = await loadData()
-
-              if (selectedCurrencies) {
-                await handleConvert(selectedCurrencies.fromCurrency, selectedCurrencies.inCurrency)
-              }
-            }}
+            onPress={loadData}
             style={({ pressed }) => ([styles.dataErrorButton, pressed && styles.buttonPressed ])}
           >
             <Text style={styles.convertButtonText}>Повторить</Text>
