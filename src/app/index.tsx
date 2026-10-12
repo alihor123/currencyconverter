@@ -13,6 +13,7 @@ export default function Index() {
   const [inCurrency, setInCurrency] = useState<Currency | null>(null)
   const [isDataLoading, setIsDataLoading] = useState(true)
   const [dataLoadError, setDataLoadError] = useState<string | null>(null)
+  const [amount, setAmount] = useState('1')
 
   const styles = useStyles((colors) => ({
     container: {
@@ -170,6 +171,13 @@ export default function Index() {
     loadData()
   }, [])
 
+  // Ввод суммы с ограничением через регулярное выражение
+  function handleChange(text: string) {
+    if (text === '' || /^\d+([.,]\d*)?$/.test(text)) {
+      setAmount(text)
+    }
+  }
+
   function handleSwap() {
     setFromCurrency(inCurrency)
     setInCurrency(fromCurrency)
@@ -209,7 +217,12 @@ export default function Index() {
       <Text style={styles.title}>Конвертер валют</Text>
       <View style={styles.wrapper}>
         <Text style={styles.label}>Сумма</Text>
-        <TextInput style={styles.input} defaultValue="100" />
+        <TextInput
+          style={styles.input}
+          value={amount}
+          onChangeText={handleChange}
+          keyboardType="decimal-pad"
+        />
       </View>
 
       <View style={styles.wrapper}>
