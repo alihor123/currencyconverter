@@ -222,6 +222,10 @@ export default function Index() {
       const exchangeRate = await getExchangeRate(from!, to!)
       const value = numericAmount * exchangeRate.rate
 
+      if (!Number.isFinite(value)) {
+        throw new ApiError('Слишком большая сумма. Введите меньшее значение')
+      }
+
       setResult({ amount: numericAmount, value, currency: to!, exchangeRate })
     }
     catch (error) {
@@ -251,9 +255,16 @@ export default function Index() {
 
   // Ввод суммы с ограничением через регулярное выражение
   function handleChange(text: string) {
-    if (text === '' || /^\d+([.,]\d*)?$/.test(text)) {
+    if (text === '' || (/^\d+([.,]\d*)?$/.test(text) && Number.isFinite(Number(text.replace(',', '.'))))) {
       setAmount(text)
     }
+  }
+
+  // Смена выбранной валюты + очистка старого результата
+  function handleCurrencyChange(changeCurrency: () => void) {
+    setResult(null)
+    setConvertError(null)
+    changeCurrency()
   }
 
   // Смена валют местам
@@ -276,11 +287,18 @@ export default function Index() {
       quote: result.exchangeRate.base,
       rate: 1 / result.exchangeRate.rate
     }
+    const value = numericAmount * exchangeRate.rate
+
+    if (!Number.isFinite(value)) {
+      setConvertError('Слишком большая сумма. Введите меньшее значение')
+      setResult(null)
+      return
+    }
 
     setConvertError(null)
     setResult({
       amount: numericAmount,
-      value: numericAmount * exchangeRate.rate,
+      value,
       currency: fromCurrency!,
       exchangeRate: exchangeRate
     })
@@ -340,7 +358,7 @@ export default function Index() {
         <Selector
           currencies={currencies}
           value={fromCurrency!}
-          onChange={setFromCurrency}
+          onChange={(value) => handleCurrencyChange(() => setFromCurrency(value))}
         />
       </View>
 
@@ -362,7 +380,7 @@ export default function Index() {
         <Selector
           currencies={currencies}
           value={inCurrency!}
-          onChange={setInCurrency}
+          onChange={(value) => handleCurrencyChange(() => setInCurrency(value))}
         />
       </View>
       <Pressable
