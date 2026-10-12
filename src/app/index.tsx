@@ -358,6 +358,7 @@ export default function Index() {
         <Selector
           currencies={currencies}
           value={fromCurrency!}
+          disabled={isConvertLoading}
           onChange={(value) => handleCurrencyChange(() => setFromCurrency(value))}
         />
       </View>
@@ -380,6 +381,7 @@ export default function Index() {
         <Selector
           currencies={currencies}
           value={inCurrency!}
+          disabled={isConvertLoading}
           onChange={(value) => handleCurrencyChange(() => setInCurrency(value))}
         />
       </View>

@@ -8,10 +8,11 @@ import { Dropdown } from 'react-native-element-dropdown'
 type SelectorProps = {
   currencies: Currency[]
   value: Currency
+  disabled?: boolean
   onChange: (currency: Currency) => void
 }
 
-export function Selector({ currencies, value, onChange }: SelectorProps) {
+export function Selector({ currencies, value, disabled, onChange }: SelectorProps) {
 
   const styles = useStyles((colors) => ({
     field: {
@@ -71,6 +72,7 @@ export function Selector({ currencies, value, onChange }: SelectorProps) {
       labelField="name"
       valueField="code"
       value={value.code}
+      disable={disabled}
       onChange={onChange}
       activeColor={styles.selectedItem.backgroundColor}
       selectedTextStyle={styles.hiddenText}
