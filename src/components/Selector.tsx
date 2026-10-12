@@ -2,8 +2,9 @@ import { ArrowDown } from '@/assets/icons'
 import { useStyles } from '@/hooks/useStyles'
 import type { Currency } from '@/services/currency.api'
 import { Image } from 'expo-image'
-import { Text, View } from 'react-native'
+import { StatusBar, Text, View } from 'react-native'
 import { Dropdown } from 'react-native-element-dropdown'
+import { isEdgeToEdge } from 'react-native-is-edge-to-edge'
 
 type SelectorProps = {
   currencies: Currency[]
@@ -30,7 +31,9 @@ export function Selector({ currencies, value, disabled, onChange }: SelectorProp
       borderRadius: 16,
       overflow: 'hidden',
       backgroundColor: colors.surface,
-      marginTop: 4
+      marginTop: 4,
+      // Убираем лишний сдвиг списка в режиме edge-to-edge
+      transform: [{translateY: isEdgeToEdge() ? -(StatusBar.currentHeight ?? 0) : 0}]
     },
     selectedContent: {
       flex: 1,

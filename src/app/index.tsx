@@ -184,6 +184,13 @@ export default function Index() {
     resultMessage = 'Введите сумму'
   }
 
+  const priority: Record<string, number> = {
+    usd: 0,
+    rub: 1,
+    eur: 2
+  }
+
+
   // Загрузка валют
   async function loadData() {
     setIsDataLoading(true)
@@ -191,9 +198,13 @@ export default function Index() {
 
     try {
       const data = await getCurrencies()
-
+      data.sort((a, b) =>
+        (priority[a.code.toLowerCase()] ?? 999) -
+        (priority[b.code.toLowerCase()] ?? 999)
+      )
       const fromCurrencies = data.find(currencies => currencies.code.toLowerCase() === 'usd') || data[0]
       const inCurrency = data.find(currencies => currencies.code.toLowerCase() === 'rub') || data[0]
+      
       setCurrencies(data)
       setFromCurrency(fromCurrencies)
       setInCurrency(inCurrency)
